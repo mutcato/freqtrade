@@ -3558,6 +3558,24 @@ def test__get_funding_fee(
         assert kraken._get_funding_fee(size, funding_rate, mark_price, time_in_ratio) == kraken_fee
 
 
+def test_get_liquidation_price(mocker, default_conf):
+
+    api_mock = MagicMock()
+    api_mock.fetch_positions = MagicMock()
+    type(api_mock).has = PropertyMock(return_value={'fetchPositions': True})
+    default_conf['dry_run'] = False
+
+    ccxt_exceptionhandlers(
+        mocker,
+        default_conf,
+        api_mock,
+        "binance",
+        "get_liquidation_price",
+        "fetch_positions",
+        pair="XRP/USDT"
+    )
+
+
 @pytest.mark.parametrize('exchange,rate_start,rate_end,d1,d2,amount,expected_fees', [
     ('binance', 0, 2, "2021-09-01 00:00:00", "2021-09-01 08:00:00",  30.0, -0.0009140999999999999),
     ('binance', 0, 2, "2021-09-01 00:00:15", "2021-09-01 08:00:00",  30.0, -0.0009140999999999999),
