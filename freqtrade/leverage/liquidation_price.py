@@ -6,68 +6,74 @@ from freqtrade.exceptions import OperationalException
 
 def liquidation_price(
     exchange_name: str,
-    open_rate: float,   # (b) Entry price of position
+    open_rate: float,   # Entry price of position
     is_short: bool,
     leverage: float,
     trading_mode: TradingMode,
-    collateral: Optional[Collateral],
-    mm_ratio: Optional[float] = None,  # (gbo)
+    mm_ratio: float,
+    collateral: Optional[Collateral] = Collateral.ISOLATED,
+
     # Binance
-    maintenance_amt: Optional[float] = None,    # (b) (cum_b)
-    # mm_ex_1: Optional[float] = None,  # Cross only
-    # upnl_ex_1: Optional[float] = None,  # Cross only
+    maintenance_amt: Optional[float] = None,
+
     # Binance and Gateio
-    wallet_balance: Optional[float] = None,  # (bg) # * Might be equal to position
-    position: Optional[float] = None,   # (bg) Absolute value of position size
+    wallet_balance: Optional[float] = None,
+    position: Optional[float] = None,   # Absolute value of position size
+
     # Gateio & Okex
-    taker_fee_rate: Optional[float] = None,  # (go)
+    taker_fee_rate: Optional[float] = None,
+
     # Okex
-    liability: Optional[float] = None,  # (o)
-    interest: Optional[float] = None,  # (o)
-    position_assets: Optional[float] = None,  # (o)
+    liability: Optional[float] = None,
+    interest: Optional[float] = None,
+    position_assets: Optional[float] = None,  # * Might be same as position
+
+    # * Cross only
+    mm_ex_1: Optional[float] = 0.0,  # Cross only
+    upnl_ex_1: Optional[float] = 0.0,  # Cross only
 ) -> Optional[float]:
     '''
-    exchange_name
-    is_short
-    leverage
-    trading_mode
-    collateral
-    #
-    open_rate - b
-    wallet_balance - bg
+    wallet_balance
         In Cross margin mode, WB is crossWalletBalance
         In Isolated margin mode, WB is isolatedWalletBalance of the isolated position, 
         TMM=0, UPNL=0, substitute the position quantity, MMR, cum into the formula to calculate.
-        Under the cross margin mode, the same ticker/symbol, 
+        Under the cross margin mode, the same ticker/symbol,
         both long and short position share the same liquidation price except in the isolated mode. 
         Under the isolated mode, each isolated position will have different liquidation prices depending
         on the margin allocated to the positions.
-    mm_ex_1 - b
-        Maintenance Margin of all other contracts, excluding Contract 1 
-        If it is an isolated margin mode, then TMM=0，UPNL=0
-    upnl_ex_1 - b
-        Unrealized PNL of all other contracts, excluding Contract 1
-        If it is an isolated margin mode, then UPNL=0
-    maintenance_amt (cumb) - b
-        Maintenance Amount of position
-    position - bg
+    position
         Absolute value of position size (in base currency)
+
+    # Binance
+    maintenance_amt (cumb)
+        Maintenance Amount of position
+
     # Gateio & okex & binance
-    mm_ratio - go
-        - [assets in the position - (liability +interest) * mark price] / (maintenance margin + liquidation fee) (okex)
-        # * Note: Binance specifies maintenance margin rate in their formula which is mm_ratio * 100%
+    mm_ratio
+        [assets in the position - (liability +interest) * mark price] /
+            (maintenance margin + liquidation fee) (okex)
+        # * Note: Binance's formula specifies maintenance margin rate which is mm_ratio * 100%
+
     # Gateio & okex
-    taker_fee_rate - go
+    taker_fee_rate
+
     # Okex
-    liability - o
+    liability
         Initial liabilities + deducted interest
             • Long positions: Liability is calculated in quote currency.
             • Short positions: Liability is calculated in trading currency.
-    interest - o
+    interest
         Interest that has not been deducted yet.
-    position_assets - o
-        # * I think this is the same as wallet_balance
+    position_assets
         Total position assets – on-hold by pending order
+
+    # * Cross only
+    mm_ex_1
+        Maintenance Margin of all other contracts, excluding Contract 1
+        If it is an isolated margin mode, then TMM=0，UPNL=0
+    upnl_ex_1
+        Unrealized PNL of all other contracts, excluding Contract 1
+        If it is an isolated margin mode, then UPNL=0
     '''
     if trading_mode == TradingMode.SPOT:
         return None
