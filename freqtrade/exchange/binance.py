@@ -163,11 +163,10 @@ class Binance(Exchange):
         if pair not in self._leverage_brackets:
             return 1.0
         pair_brackets = self._leverage_brackets[pair]
-        max_lev = 1.0
-        for [notional_floor, maint_margin_ratio] in pair_brackets:
+        for [notional_floor, mm_ratio, _] in reversed(pair_brackets):
             if nominal_value >= notional_floor:
-                max_lev = 1/maint_margin_ratio
-        return max_lev
+                return 1/mm_ratio
+        return 1.0
 
     @retrier
     def _set_leverage(
@@ -227,3 +226,24 @@ class Binance(Exchange):
         :return: The cutoff open time for when a funding fee is charged
         """
         return open_date.minute > 0 or (open_date.minute == 0 and open_date.second > 15)
+
+    def get_maintenance_ratio_and_amt(
+        self,
+        pair: Optional[str],
+        nominal_value: Optional[float]
+    ):
+        '''
+        Maintenance amt = Floor of Position Bracket on Level n *
+          difference between
+              Maintenance Margin Rate on Level n and
+              Maintenance Margin Rate on Level n-1)
+          + Maintenance Amount on Level n-1
+          https://www.binance.com/en/support/faq/b3c689c1f50a44cabb3a84e663b81d93
+        '''
+        if pair not in self._leverage_brackets:
+            raise InvalidOrderException(f"Cannot calculate liquidation price for {pair}")
+        pair_brackets = self._leverage_brackets[pair]
+        for [notional_floor, mm_ratio, amt] in reversed(pair_brackets):
+            if nominal_value >= notional_floor:
+                return [mm_ratio, amt]
+        return [None, None]
