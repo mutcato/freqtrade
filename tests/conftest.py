@@ -781,6 +781,8 @@ def get_markets():
             'swap': True,
             'margin': True,
             'type': 'spot',
+            'taker': 0.0006,
+            'maker': 0.0002,
             'precision': {
                 'amount': 8,
                 'price': 8
@@ -809,6 +811,8 @@ def get_markets():
             'swap': True,
             'margin': True,
             'type': 'spot',
+            'taker': 0.0006,
+            'maker': 0.0002,
             'precision': {
                 'amount': 8,
                 'price': 8
@@ -833,6 +837,8 @@ def get_markets():
             'active': True,
             'spot': True,
             'type': 'spot',
+            'taker': 0.0006,
+            'maker': 0.0002,
             'precision': {
                 'price': 8,
                 'amount': 8,
@@ -860,6 +866,8 @@ def get_markets():
             'active': True,
             'spot': True,
             'type': 'spot',
+            'taker': 0.0006,
+            'maker': 0.0002,
             'precision': {
                 'price': 8,
                 'amount': 8,
@@ -887,6 +895,8 @@ def get_markets():
             'active': True,
             'spot': True,
             'type': 'spot',
+            'taker': 0.0006,
+            'maker': 0.0002,
             'precision': {
                 'price': 8,
                 'amount': 8,
@@ -939,7 +949,9 @@ def get_markets():
             'active': True,
             'spot': False,
             'type': 'swap',
-            'contractSize': '0.01',
+            'contractSize': 0.01,
+            'taker': 0.0006,
+            'maker': 0.0002,
             'precision': {
                 'amount': 8,
                 'price': 8
