@@ -3536,7 +3536,7 @@ def test_get_max_leverage(default_conf, mocker, pair, nominal_value, max_lev):
         (10, 0.0002, 2.0, 0.01, 0.004, 0.00004),
         (10, 0.0002, 2.5, None, 0.005, None),
     ])
-def test__calculate_funding_fees(
+def test_calculate_funding_fees(
     default_conf,
     mocker,
     size,
@@ -3558,10 +3558,10 @@ def test__calculate_funding_fees(
         {'date': prior_date, 'open': mark_price},
         {'date': trade_date, 'open': mark_price},
         ])
+    df = exchange.combine_funding_and_mark(funding_rates, mark_rates)
 
     assert exchange.calculate_funding_fees(
-        funding_rates=funding_rates,
-        mark_rates=mark_rates,
+        df,
         amount=size,
         open_date=trade_date,
         close_date=trade_date,
@@ -3571,8 +3571,7 @@ def test__calculate_funding_fees(
     if (kraken_fee is None):
         with pytest.raises(OperationalException):
             kraken.calculate_funding_fees(
-                funding_rates=funding_rates,
-                mark_rates=mark_rates,
+                df,
                 amount=size,
                 open_date=trade_date,
                 close_date=trade_date,
@@ -3581,8 +3580,7 @@ def test__calculate_funding_fees(
 
     else:
         assert kraken.calculate_funding_fees(
-            funding_rates=funding_rates,
-            mark_rates=mark_rates,
+            df,
             amount=size,
             open_date=trade_date,
             close_date=trade_date,
