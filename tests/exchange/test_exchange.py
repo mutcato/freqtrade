@@ -3559,7 +3559,7 @@ def test__calculate_funding_fees(
         {'date': trade_date, 'open': mark_price},
         ])
 
-    assert exchange._calculate_funding_fees(
+    assert exchange.calculate_funding_fees(
         funding_rates=funding_rates,
         mark_rates=mark_rates,
         amount=size,
@@ -3570,7 +3570,7 @@ def test__calculate_funding_fees(
 
     if (kraken_fee is None):
         with pytest.raises(OperationalException):
-            kraken._calculate_funding_fees(
+            kraken.calculate_funding_fees(
                 funding_rates=funding_rates,
                 mark_rates=mark_rates,
                 amount=size,
@@ -3580,7 +3580,7 @@ def test__calculate_funding_fees(
             )
 
     else:
-        assert kraken._calculate_funding_fees(
+        assert kraken.calculate_funding_fees(
             funding_rates=funding_rates,
             mark_rates=mark_rates,
             amount=size,
