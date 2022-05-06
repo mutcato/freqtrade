@@ -160,6 +160,7 @@ class DataProvider:
         """
         Refresh data, called with each cycle
         """
+        logger.info(pairlist)
         if self._exchange is None:
             raise OperationalException(NO_EXCHANGE_EXCEPTION)
         if helping_pairs:

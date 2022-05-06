@@ -165,6 +165,36 @@ def ask_user_config() -> Dict[str, Any]:
         },
         {
             "type": "confirm",
+            "name": "twitter",
+            "message": "Do you want to enable Twitter notifier?",
+            "default": False,
+        },
+        {
+            "type": "text",
+            "name": "consumer_api_key",
+            "message": "Consumer API key",
+            "when": lambda x: x["twitter"],
+        },
+        {
+            "type": "text",
+            "name": "consumer_api_secret",
+            "message": "Consumer API secret",
+            "when": lambda x: x["twitter"],
+        },
+        {
+            "type": "text",
+            "name": "access_token",
+            "message": "Access Token",
+            "when": lambda x: x["twitter"],
+        },
+        {
+            "type": "text",
+            "name": "access_token_secret",
+            "message": "Access Token Secret",
+            "when": lambda x: x["twitter"],
+        },
+        {
+            "type": "confirm",
             "name": "api_server",
             "message": "Do you want to enable the Rest API (includes FreqUI)?",
             "default": False,

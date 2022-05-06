@@ -51,13 +51,17 @@ class Worker:
         # Init the instance of the bot
         self.freqtrade = FreqtradeBot(self._config)
 
-        internals_config = self._config.get('internals', {})
-        self._throttle_secs = internals_config.get('process_throttle_secs',
-                                                   constants.PROCESS_THROTTLE_SECS)
-        self._heartbeat_interval = internals_config.get('heartbeat_interval', 60)
+        internals_config = self._config.get("internals", {})
+        self._throttle_secs = internals_config.get(
+            "process_throttle_secs", constants.PROCESS_THROTTLE_SECS
+        )
+        self._heartbeat_interval = internals_config.get("heartbeat_interval", 60)
 
-        self._sd_notify = sdnotify.SystemdNotifier() if \
-            self._config.get('internals', {}).get('sd_notify', False) else None
+        self._sd_notify = (
+            sdnotify.SystemdNotifier()
+            if self._config.get("internals", {}).get("sd_notify", False)
+            else None
+        )
 
     def _notify(self, message: str) -> None:
         """
@@ -70,6 +74,9 @@ class Worker:
 
     def run(self) -> None:
         state = None
+        logger.info(
+            "START WORKER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        )
         while True:
             state = self._worker(old_state=state)
             if state == State.RELOAD_CONFIG:
@@ -87,10 +94,11 @@ class Worker:
         if state != old_state:
 
             if old_state != State.RELOAD_CONFIG:
-                self.freqtrade.notify_status(f'{state.name.lower()}')
+                self.freqtrade.notify_status(f"{state.name.lower()}")
 
             logger.info(
-                f"Changing state{f' from {old_state.name}' if old_state else ''} to: {state.name}")
+                f"Changing state{f' from {old_state.name}' if old_state else ''} to: {state.name}"
+            )
             if state == State.RUNNING:
                 self.freqtrade.startup()
 
@@ -118,10 +126,11 @@ class Worker:
             if (now - self._heartbeat_msg) > self._heartbeat_interval:
                 version = __version__
                 strategy_version = self.freqtrade.strategy.version()
-                if (strategy_version is not None):
-                    version += ', strategy_version: ' + strategy_version
-                logger.info(f"Bot heartbeat. PID={getpid()}, "
-                            f"version='{version}', state='{state.name}'")
+                if strategy_version is not None:
+                    version += ", strategy_version: " + strategy_version
+                logger.info(
+                    f"Bot heartbeat. PID={getpid()}, " f"version='{version}', state='{state.name}'"
+                )
                 self._heartbeat_msg = now
 
         return state
@@ -139,8 +148,10 @@ class Worker:
         result = func(*args, **kwargs)
         time_passed = time.time() - self.last_throttle_start_time
         sleep_duration = max(throttle_secs - time_passed, 0.0)
-        logger.debug(f"Throttling with '{func.__name__}()': sleep for {sleep_duration:.2f} s, "
-                     f"last iteration took {time_passed:.2f} s.")
+        logger.debug(
+            f"Throttling with '{func.__name__}()': sleep for {sleep_duration:.2f} s, "
+            f"last iteration took {time_passed:.2f} s."
+        )
         time.sleep(sleep_duration)
         return result
 
@@ -155,11 +166,11 @@ class Worker:
             time.sleep(constants.RETRY_TIMEOUT)
         except OperationalException:
             tb = traceback.format_exc()
-            hint = 'Issue `/start` if you think it is safe to restart.'
+            hint = "Issue `/start` if you think it is safe to restart."
 
-            self.freqtrade.notify_status(f'OperationalException:\n```\n{tb}```{hint}')
+            self.freqtrade.notify_status(f"OperationalException:\n```\n{tb}```{hint}")
 
-            logger.exception('OperationalException. Stopping trader ...')
+            logger.exception("OperationalException. Stopping trader ...")
             self.freqtrade.state = State.STOPPED
 
     def _reconfigure(self) -> None:
@@ -176,7 +187,7 @@ class Worker:
         # Load and validate config and create new instance of the bot
         self._init(True)
 
-        self.freqtrade.notify_status('config reloaded')
+        self.freqtrade.notify_status("config reloaded")
 
         # Tell systemd that we completed reconfiguration
         self._notify("READY=1")
@@ -186,5 +197,5 @@ class Worker:
         self._notify("STOPPING=1")
 
         if self.freqtrade:
-            self.freqtrade.notify_status('process died')
+            self.freqtrade.notify_status("process died")
             self.freqtrade.cleanup()

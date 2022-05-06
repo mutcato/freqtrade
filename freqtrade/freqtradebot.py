@@ -472,6 +472,7 @@ class FreqtradeBot(LoggingMixin):
         Once that completes, the existing trade is modified to match new data.
         """
         current_rate = self.exchange.get_rate(trade.pair, refresh=True, side="buy")
+        logger.info(current_rate)
         current_profit = trade.calc_profit_ratio(current_rate)
 
         min_stake_amount = self.exchange.get_min_pair_stake_amount(trade.pair,

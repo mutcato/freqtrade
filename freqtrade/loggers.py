@@ -22,7 +22,7 @@ class FTBufferingHandler(BufferingHandler):
 
 
 logger = logging.getLogger(__name__)
-LOGFORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOGFORMAT = "%(asctime)s - %(name)s - Line: %(lineno)d - %(levelname)s - %(message)s"
 
 # Initialize bufferhandler - will be used for /log endpoints
 bufferHandler = FTBufferingHandler(1000)

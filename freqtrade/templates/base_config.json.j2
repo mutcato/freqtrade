@@ -57,6 +57,13 @@
         "token": "{{ telegram_token }}",
         "chat_id": "{{ telegram_chat_id }}"
     },
+    "twitter": {
+        "enabled": {{ twitter | lower }},
+        "consumer_api_key": "{{ consumer_api_key }}",
+        "consumer_api_secret": "{{ consumer_api_secret }}",
+        "access_token": "{{ access_token }}",
+        "access_token_secret": "{{ access_token_secret }}"
+    },
     "api_server": {
         "enabled": {{ api_server | lower }},
         "listen_ip_address": "{{ api_server_listen_addr | default("127.0.0.1", true) }}",
